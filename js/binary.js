@@ -1174,6 +1174,7 @@ var isMobile = __webpack_require__(/*! ../os_detect */ "./src/javascript/_common
 var isStorageSupported = __webpack_require__(/*! ../storage */ "./src/javascript/_common/storage.js").isStorageSupported;
 var LocalStore = __webpack_require__(/*! ../storage */ "./src/javascript/_common/storage.js").LocalStore;
 var urlForCurrentDomain = __webpack_require__(/*! ../url */ "./src/javascript/_common/url.js").urlForCurrentDomain;
+var domain_app_ids = __webpack_require__(/*! ../../config */ "./src/javascript/config.js").domain_app_ids;
 var getAppId = __webpack_require__(/*! ../../config */ "./src/javascript/config.js").getAppId;
 
 var Login = function () {
@@ -1190,8 +1191,9 @@ var Login = function () {
         var signup_device = LocalStore.get('signup_device') || (isMobile() ? 'mobile' : 'desktop');
         var date_first_contact = LocalStore.get('date_first_contact');
         var marketing_queries = '&signup_device=' + signup_device + (date_first_contact ? '&date_first_contact=' + date_first_contact : '');
+        var default_binary_url = 'https://oauth.binary.com/oauth2/authorize?app_id=' + getAppId() + '&l=' + language + marketing_queries;
 
-        return server_url && /qa/.test(server_url) ? 'https://' + server_url + '/oauth2/authorize?app_id=' + getAppId() + '&l=' + language + marketing_queries : urlForCurrentDomain('https://oauth.binary.com/oauth2/authorize?app_id=' + getAppId() + '&l=' + language + marketing_queries);
+        return server_url && /qa/.test(server_url) ? 'https://' + server_url + '/oauth2/authorize?app_id=' + getAppId() + '&l=' + language + marketing_queries : getAppId() === domain_app_ids['deriv.com'] ? default_binary_url : urlForCurrentDomain(default_binary_url);
     };
 
     var isLoginPages = function isLoginPages() {
@@ -36022,6 +36024,7 @@ var getSocketURL = function getSocketURL() {
 };
 
 module.exports = {
+    domain_app_ids: domain_app_ids,
     getCurrentBinaryDomain: getCurrentBinaryDomain,
     isProduction: isProduction,
     getAppId: getAppId,
