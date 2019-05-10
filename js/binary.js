@@ -12077,7 +12077,7 @@ exports.default = RouteWithSubRoutes;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var website_name = exports.website_name = 'Deriv.app';
+var website_name = exports.website_name = 'DTrader';
 var default_title = exports.default_title = website_name;
 
 /***/ }),
