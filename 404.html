@@ -26,15 +26,15 @@
     var all_languages = ['en'].concat(Object.keys(langs));
     function getLanguage(country) {
         var conLang = 'en';
-        // if (country) {
-        //     var keys = Object.keys(langs);
-        //     for (var i = keys.length; i--; ) {
-        //         var l = keys[i];
-        //         if ((new RegExp(langs[l], 'i')).test(country)) {
-        //             return l;
-        //         }
-        //     }
-        // }
+        if (country) {
+            var keys = Object.keys(langs);
+            for (var i = keys.length; i--; ) {
+                var l = keys[i];
+                if ((new RegExp(langs[l], 'i')).test(country)) {
+                    return l;
+                }
+            }
+        }
         return conLang;
     }
 
