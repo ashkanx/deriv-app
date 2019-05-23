@@ -8863,7 +8863,7 @@ var DatePicker = function (_React$Component) {
             is_clear_btn_visible: false,
             value: _this.props.value,
             weekends: []
-        }, _this.handleVisibility = function () {
+        }, _this.is_mounted = false, _this.handleVisibility = function () {
             _this.setState(function (state) {
                 return { is_datepicker_visible: !state.is_datepicker_visible };
             });
@@ -8992,6 +8992,8 @@ var DatePicker = function (_React$Component) {
     _createClass(DatePicker, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
+            this.is_mounted = true;
+
             document.addEventListener('click', this.onClickOutside, true);
             var _props = this.props,
                 mode = _props.mode,
@@ -9008,6 +9010,7 @@ var DatePicker = function (_React$Component) {
     }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
+            this.is_mounted = false;
             document.removeEventListener('click', this.onClickOutside, true);
         }
 
@@ -9045,10 +9048,12 @@ var DatePicker = function (_React$Component) {
                                     });
                                 });
 
-                                this.setState({
-                                    holidays: holidays,
-                                    weekends: weekends
-                                });
+                                if (this.is_mounted) {
+                                    this.setState({
+                                        holidays: holidays,
+                                        weekends: weekends
+                                    });
+                                }
 
                             case 7:
                             case 'end':
@@ -24863,7 +24868,7 @@ var TradingTimePicker = function TradingTimePicker(_ref) {
         server_time = _ref.server_time;
 
     var moment_expiry_date = (0, _Date.toMoment)(expiry_date);
-    var market_open_datetime = (0, _Date.setTime)(moment_expiry_date.clone(), market_open_times[0]);
+    var market_open_datetime = (0, _Date.setTime)(moment_expiry_date.clone(), market_open_times.slice(-1)[0]);
     var market_close_datetime = (0, _Date.setTime)(moment_expiry_date.clone(), market_close_times.slice(-1)[0]);
     var expiry_datetime = (0, _Date.setTime)(moment_expiry_date.clone(), expiry_time);
     var server_datetime = (0, _Date.toMoment)(server_time);
@@ -24951,6 +24956,8 @@ var _RangeSlider = __webpack_require__(/*! ../../../../../../App/Components/Form
 
 var _RangeSlider2 = _interopRequireDefault(_RangeSlider);
 
+var _connect = __webpack_require__(/*! ../../../../../../Stores/connect */ "./src/javascript/app/Stores/connect.js");
+
 var _duration = __webpack_require__(/*! ../../../../../../Stores/Modules/Trading/Helpers/duration */ "./src/javascript/app/Stores/Modules/Trading/Helpers/duration.js");
 
 var _Date = __webpack_require__(/*! ../../../../../../Utils/Date */ "./src/javascript/app/Utils/Date/index.js");
@@ -24980,7 +24987,8 @@ var AdvancedDuration = function AdvancedDuration(_ref) {
         onChangeUiStore = _ref.onChangeUiStore,
         server_time = _ref.server_time,
         shared_input_props = _ref.shared_input_props,
-        start_date = _ref.start_date;
+        start_date = _ref.start_date,
+        validation_errors = _ref.validation_errors;
 
     var is_24_hours_contract = false;
 
@@ -25039,6 +25047,7 @@ var AdvancedDuration = function AdvancedDuration(_ref) {
                 }),
                 advanced_duration_unit !== 't' && advanced_duration_unit !== 'd' && _react2.default.createElement(_InputField2.default, _extends({
                     classNameInput: 'trade-container__input',
+                    error_messages: validation_errors.duration,
                     label: duration_units_list.length === 1 ? duration_units_list[0].text : null,
                     name: 'duration',
                     value: getDurationFromUnit(advanced_duration_unit)
@@ -25077,10 +25086,16 @@ AdvancedDuration.propTypes = {
     onChangeUiStore: _propTypes2.default.func,
     server_time: _propTypes2.default.object,
     shared_input_props: _propTypes2.default.object,
-    start_date: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string])
+    start_date: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string]),
+    validation_errors: _propTypes2.default.object
 };
 
-exports.default = AdvancedDuration;
+exports.default = (0, _connect.connect)(function (_ref3) {
+    var modules = _ref3.modules;
+    return {
+        validation_errors: modules.trade.validation_errors
+    };
+})(AdvancedDuration);
 
 /***/ }),
 
@@ -25174,9 +25189,11 @@ var _mobxReact = __webpack_require__(/*! mobx-react */ "./node_modules/mobx-reac
 
 var _connect = __webpack_require__(/*! ../../../../../../Stores/connect */ "./src/javascript/app/Stores/connect.js");
 
-var _duration = __webpack_require__(/*! ./duration.jsx */ "./src/javascript/app/Modules/Trading/Components/Form/TradeParams/Duration/duration.jsx");
+var _duration = __webpack_require__(/*! ../../../../../../Stores/Modules/Trading/Helpers/duration */ "./src/javascript/app/Stores/Modules/Trading/Helpers/duration.js");
 
-var _duration2 = _interopRequireDefault(_duration);
+var _duration2 = __webpack_require__(/*! ./duration.jsx */ "./src/javascript/app/Modules/Trading/Components/Form/TradeParams/Duration/duration.jsx");
+
+var _duration3 = _interopRequireDefault(_duration2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -25202,7 +25219,10 @@ var DurationWrapper = function (_React$Component) {
             args[_key] = arguments[_key];
         }
 
-        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = DurationWrapper.__proto__ || Object.getPrototypeOf(DurationWrapper)).call.apply(_ref, [this].concat(args))), _this), _this.hasDurationUnit = function (duration_unit) {
+        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = DurationWrapper.__proto__ || Object.getPrototypeOf(DurationWrapper)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+            min_value: 0,
+            max_value: 0
+        }, _this.hasDurationUnit = function (duration_unit) {
             var duration_list = [].concat(_toConsumableArray(_this.props.duration_units_list));
 
             if (_this.props.duration_units_list.length > 1 && !_this.props.is_advanced_duration) {
@@ -25245,22 +25265,52 @@ var DurationWrapper = function (_React$Component) {
     }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var current_unit = this.props.is_advanced_duration ? this.props.advanced_duration_unit : this.props.simple_duration_unit;
-            var current_duration = this.props.getDurationFromUnit(this.props.duration_unit);
+            var _props = this.props,
+                advanced_duration_unit = _props.advanced_duration_unit,
+                advanced_expiry_type = _props.advanced_expiry_type,
+                contract_expiry_type = _props.contract_expiry_type,
+                duration = _props.duration,
+                duration_min_max = _props.duration_min_max,
+                duration_unit = _props.duration_unit,
+                expiry_type = _props.expiry_type,
+                getDurationFromUnit = _props.getDurationFromUnit,
+                is_advanced_duration = _props.is_advanced_duration,
+                onChange = _props.onChange,
+                onChangeUiStore = _props.onChangeUiStore,
+                simple_duration_unit = _props.simple_duration_unit;
 
-            if (this.props.duration_unit !== current_unit) {
-                this.props.onChangeUiStore({ name: (this.props.is_advanced_duration ? 'advanced' : 'simple') + '_duration_unit', value: this.props.duration_unit });
+
+            var current_unit = is_advanced_duration ? advanced_duration_unit : simple_duration_unit;
+            var current_duration = getDurationFromUnit(current_unit);
+            var max_value = (0, _duration.convertDurationLimit)(+duration_min_max[contract_expiry_type].max, current_unit);
+            var min_value = (0, _duration.convertDurationLimit)(+duration_min_max[contract_expiry_type].min, current_unit);
+
+            if (duration_unit !== current_unit) {
+                onChangeUiStore({ name: (is_advanced_duration ? 'advanced' : 'simple') + '_duration_unit', value: duration_unit });
             }
 
-            if (this.props.duration !== current_duration) {
-                this.props.onChangeUiStore({ name: 'duration_' + current_unit, value: this.props.duration });
+            if (duration !== current_duration) {
+                onChangeUiStore({ name: 'duration_' + current_unit, value: duration });
             }
 
-            if (this.props.expiry_type === 'endtime') this.handleEndTime();
+            if (expiry_type === 'endtime') this.handleEndTime();
 
             if (this.advancedHasWrongExpiry()) {
-                this.props.onChange({ target: { name: 'expiry_type', value: this.props.advanced_expiry_type } });
+                onChange({ target: { name: 'expiry_type', value: advanced_expiry_type } });
             }
+
+            if (current_duration < min_value) {
+                onChangeUiStore({ name: 'duration_' + current_unit, value: min_value });
+                onChange({ target: { name: 'duration', value: min_value } });
+            } else if (current_duration > max_value) {
+                onChangeUiStore({ name: 'duration_' + current_unit, value: max_value });
+                onChange({ target: { name: 'duration', value: max_value } });
+            }
+
+            this.setState({
+                min_value: min_value,
+                max_value: max_value
+            });
         }
 
         // intercept changes to contract duration and check that trade_store and ui_store are aligned.
@@ -25295,9 +25345,9 @@ var DurationWrapper = function (_React$Component) {
                 this.setDurationUnit();
             }
 
-            return _react2.default.createElement(_duration2.default, _extends({
+            return _react2.default.createElement(_duration3.default, _extends({
                 hasDurationUnit: this.hasDurationUnit
-            }, this.props));
+            }, this.state, this.props));
         }
     }]);
 
@@ -25331,8 +25381,7 @@ DurationWrapper.propTypes = {
     simple_duration_unit: _propTypes2.default.string,
     start_date: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string]),
     start_time: _propTypes2.default.string,
-    symbol: _propTypes2.default.string,
-    validation_errors: _propTypes2.default.object
+    symbol: _propTypes2.default.string
 };
 
 exports.default = (0, _connect.connect)(function (_ref2) {
@@ -25357,7 +25406,6 @@ exports.default = (0, _connect.connect)(function (_ref2) {
         onChangeMultiple: modules.trade.onChangeMultiple,
         simple_duration_unit: ui.simple_duration_unit,
         start_date: modules.trade.start_date,
-        validation_errors: modules.trade.validation_errors,
         market_open_times: modules.trade.market_open_times
     };
 })(DurationWrapper);
@@ -25404,8 +25452,6 @@ var _RangeSlider = __webpack_require__(/*! ../../../../../../App/Components/Form
 
 var _RangeSlider2 = _interopRequireDefault(_RangeSlider);
 
-var _duration = __webpack_require__(/*! ../../../../../../Stores/Modules/Trading/Helpers/duration */ "./src/javascript/app/Stores/Modules/Trading/Helpers/duration.js");
-
 var _Date = __webpack_require__(/*! ../../../../../../Utils/Date */ "./src/javascript/app/Utils/Date/index.js");
 
 var _durationToggle = __webpack_require__(/*! ./duration-toggle.jsx */ "./src/javascript/app/Modules/Trading/Components/Form/TradeParams/Duration/duration-toggle.jsx");
@@ -25425,11 +25471,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Duration = function Duration(_ref) {
     var advanced_duration_unit = _ref.advanced_duration_unit,
         advanced_expiry_type = _ref.advanced_expiry_type,
-        contract_expiry_type = _ref.contract_expiry_type,
         duration = _ref.duration,
         duration_unit = _ref.duration_unit,
         duration_units_list = _ref.duration_units_list,
-        duration_min_max = _ref.duration_min_max,
         duration_t = _ref.duration_t,
         expiry_date = _ref.expiry_date,
         expiry_time = _ref.expiry_time,
@@ -25438,13 +25482,14 @@ var Duration = function Duration(_ref) {
         hasDurationUnit = _ref.hasDurationUnit,
         is_advanced_duration = _ref.is_advanced_duration,
         is_minimized = _ref.is_minimized,
+        min_value = _ref.min_value,
+        max_value = _ref.max_value,
         onChange = _ref.onChange,
         onChangeUiStore = _ref.onChangeUiStore,
         onChangeMultiple = _ref.onChangeMultiple,
         simple_duration_unit = _ref.simple_duration_unit,
         server_time = _ref.server_time,
         start_date = _ref.start_date,
-        validation_errors = _ref.validation_errors,
         market_open_times = _ref.market_open_times;
 
     var expiry_list = [{ text: (0, _localize.localize)('Duration'), value: 'duration' }];
@@ -25529,13 +25574,6 @@ var Duration = function Duration(_ref) {
         onChangeMultiple(_extends({}, new_trade_store_values));
     };
 
-    var max_value = void 0,
-        min_value = void 0;
-    if (duration_min_max[contract_expiry_type]) {
-        max_value = (0, _duration.convertDurationLimit)(+duration_min_max[contract_expiry_type].max, duration_unit);
-        min_value = (0, _duration.convertDurationLimit)(+duration_min_max[contract_expiry_type].min, duration_unit);
-    }
-
     var props = {
         shared_input: {
             max_value: max_value,
@@ -25544,8 +25582,7 @@ var Duration = function Duration(_ref) {
         },
         number_input: {
             type: 'number',
-            is_incrementable: true,
-            error_messages: validation_errors.duration || []
+            is_incrementable: true
         }
     };
     // e.g. digit contracts only has range slider - does not have toggle between advanced / simple
@@ -25603,9 +25640,7 @@ var Duration = function Duration(_ref) {
 Duration.propTypes = {
     advanced_duration_unit: _propTypes2.default.string,
     advanced_expiry_type: _propTypes2.default.string,
-    contract_expiry_type: _propTypes2.default.string,
     duration: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string]),
-    duration_min_max: _propTypes2.default.object,
     duration_t: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string]),
     duration_unit: _propTypes2.default.string,
     duration_units_list: _mobxReact.PropTypes.arrayOrObservableArray,
@@ -25617,6 +25652,8 @@ Duration.propTypes = {
     is_advanced_duration: _propTypes2.default.bool,
     is_minimized: _propTypes2.default.bool,
     market_open_times: _propTypes2.default.array,
+    max_value: _propTypes2.default.number,
+    min_value: _propTypes2.default.number,
     onChange: _propTypes2.default.func,
     onChangeUiStore: _propTypes2.default.func,
     server_time: _propTypes2.default.object,
@@ -25692,6 +25729,8 @@ var _RangeSlider = __webpack_require__(/*! ../../../../../../App/Components/Form
 
 var _RangeSlider2 = _interopRequireDefault(_RangeSlider);
 
+var _connect = __webpack_require__(/*! ../../../../../../Stores/connect */ "./src/javascript/app/Stores/connect.js");
+
 var _DatePicker = __webpack_require__(/*! ../../DatePicker */ "./src/javascript/app/Modules/Trading/Components/Form/DatePicker/index.js");
 
 var _DatePicker2 = _interopRequireDefault(_DatePicker);
@@ -25705,7 +25744,8 @@ var SimpleDuration = function SimpleDuration(_ref) {
         getDurationFromUnit = _ref.getDurationFromUnit,
         number_input_props = _ref.number_input_props,
         shared_input_props = _ref.shared_input_props,
-        simple_duration_unit = _ref.simple_duration_unit;
+        simple_duration_unit = _ref.simple_duration_unit,
+        validation_errors = _ref.validation_errors;
 
     var filterMinutesAndTicks = function filterMinutesAndTicks(arr) {
         var filtered_arr = arr.filter(function (du) {
@@ -25741,6 +25781,7 @@ var SimpleDuration = function SimpleDuration(_ref) {
         }),
         simple_duration_unit !== 't' && simple_duration_unit !== 'd' && _react2.default.createElement(_InputField2.default, _extends({
             classNameInput: 'trade-container__input',
+            error_messages: validation_errors.duration,
             name: 'duration',
             label: has_label ? duration_units_list[0].text : null,
             value: getDurationFromUnit(simple_duration_unit)
@@ -25755,10 +25796,16 @@ SimpleDuration.propTypes = {
     getDurationFromUnit: _propTypes2.default.func,
     number_input_props: _propTypes2.default.object,
     shared_input_props: _propTypes2.default.object,
-    simple_duration_unit: _propTypes2.default.string
+    simple_duration_unit: _propTypes2.default.string,
+    validation_errors: _propTypes2.default.object
 };
 
-exports.default = SimpleDuration;
+exports.default = (0, _connect.connect)(function (_ref2) {
+    var modules = _ref2.modules;
+    return {
+        validation_errors: modules.trade.validation_errors
+    };
+})(SimpleDuration);
 
 /***/ }),
 
@@ -27255,6 +27302,8 @@ var _infoBox = __webpack_require__(/*! ../../Contract/Containers/info-box.jsx */
 
 var _infoBox2 = _interopRequireDefault(_infoBox);
 
+var _digits3 = __webpack_require__(/*! ../Helpers/digits */ "./src/javascript/app/Modules/Trading/Helpers/digits.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -27299,7 +27348,7 @@ var Trade = function (_React$Component) {
             var contract_id = (0, _utility.getPropertyValue)(this.props.purchase_info, ['buy', 'contract_id']);
             var form_wrapper_class = this.props.is_mobile ? 'mobile-wrapper' : 'sidebar__container desktop-only';
             var should_show_bottom_widgets = this.props.is_digit_contract && this.props.is_contract_mode;
-            var should_show_last_digit_stats = this.props.is_digit_contract && !this.props.is_contract_mode;
+            var should_show_last_digit_stats = (0, _digits3.isDigitTradeType)(this.props.contract_type) && !this.props.is_contract_mode;
             var is_chart_visible = this.props.is_chart_loading || !this.props.is_chart_ready;
 
             return _react2.default.createElement(
@@ -27417,6 +27466,27 @@ exports.default = (0, _connect.connect)(function (_ref) {
         setHasOnlyForwardingContracts: ui.setHasOnlyForwardingContracts
     };
 })(Trade);
+
+/***/ }),
+
+/***/ "./src/javascript/app/Modules/Trading/Helpers/digits.js":
+/*!**************************************************************!*\
+  !*** ./src/javascript/app/Modules/Trading/Helpers/digits.js ***!
+  \**************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var digitTypesMap = ['even_odd', 'match_diff', 'over_under'];
+
+var isDigitTradeType = exports.isDigitTradeType = function isDigitTradeType(contract_type) {
+  return digitTypesMap.includes(contract_type);
+};
 
 /***/ }),
 
@@ -28481,7 +28551,6 @@ var handleClientNotifications = exports.handleClientNotifications = function han
 
     if (!currency) addNotification(client_notifications.currency);
     if (excluded_until) addNotification(client_notifications.self_exclusion(excluded_until));
-    if ((0, _client_base.shouldAcceptTnc)()) addNotification(client_notifications.tnc);
 
     _Services.WS.getAccountStatus().then(function (response) {
         return checkAccountStatus(response, client, addNotification, loginid);
@@ -28489,6 +28558,8 @@ var handleClientNotifications = exports.handleClientNotifications = function han
 
     _Services.WS.sendRequest({ get_settings: 1 }, { forced: true }).then(function (response) {
         if (loginid !== _storage.LocalStore.get('active_loginid')) return;
+
+        if ((0, _client_base.shouldAcceptTnc)()) addNotification(client_notifications.tnc);
 
         if (hasMissingRequiredField(response, client)) {
             addNotification(client_notifications.required_fields);
@@ -29257,6 +29328,7 @@ var ContractStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec
             this.is_from_positions = is_from_positions;
 
             if (contract_id) {
+                this.replay_info = {};
                 if (this.is_from_positions) {
                     this.smart_chart.setIsChartLoading(true);
                 }
@@ -29269,6 +29341,7 @@ var ContractStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec
         key: 'onMountReplay',
         value: function onMountReplay(contract_id) {
             if (contract_id) {
+                this.contract_info = {};
                 this.smart_chart = this.root_store.modules.smart_chart;
                 this.smart_chart.setContractMode(true);
                 this.replay_contract_id = contract_id;
@@ -29281,6 +29354,7 @@ var ContractStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec
             this.forgetProposalOpenContract();
             this.forget_id = null;
             this.replay_contract_id = null;
+            this.digits_info = {};
             this.replay_info = {};
             this.smart_chart.setContractMode(false);
             this.smart_chart.cleanupContractChartView();
@@ -32340,9 +32414,11 @@ var isMarketClosed = exports.isMarketClosed = function isMarketClosed() {
     var symbol = arguments[1];
 
     if (!active_symbols.length) return true;
-    return !active_symbols.filter(function (symbol_info) {
+    return active_symbols.filter(function (x) {
+        return x.symbol === symbol;
+    })[0] ? !active_symbols.filter(function (symbol_info) {
         return symbol_info.symbol === symbol;
-    })[0].exchange_is_open;
+    })[0].exchange_is_open : false;
 };
 
 /***/ }),
