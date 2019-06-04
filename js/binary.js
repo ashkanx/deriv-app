@@ -13032,6 +13032,7 @@ exports.RouteWithSubRoutes = _routeWithSubRoutes2.default;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.RouteWithSubRoutesRender = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -13055,9 +13056,7 @@ var _routes = __webpack_require__(/*! ../../../Constants/routes */ "./src/javasc
 
 var _routes2 = _interopRequireDefault(_routes);
 
-var _gtm = __webpack_require__(/*! ../../../Utils/gtm */ "./src/javascript/app/Utils/gtm.js");
-
-var _gtm2 = _interopRequireDefault(_gtm);
+var _connect = __webpack_require__(/*! ../../../Stores/connect */ "./src/javascript/app/Stores/connect.js");
 
 var _loginPrompt = __webpack_require__(/*! ../Elements/login-prompt.jsx */ "./src/javascript/app/App/Components/Elements/login-prompt.jsx");
 
@@ -13088,7 +13087,7 @@ var RouteWithSubRoutes = function RouteWithSubRoutes(route) {
         var title = route.title ? route.title + ' | ' : '';
         document.title = '' + title + _appConfig.default_title;
         _socket_base2.default.wait('website_status').then(function () {
-            _gtm2.default.pushDataLayer({ event: 'page_load' });
+            route.pushDataLayer({ event: 'page_load' });
         });
         return result;
     };
@@ -13100,7 +13099,14 @@ var RouteWithSubRoutes = function RouteWithSubRoutes(route) {
     });
 };
 
-exports.default = RouteWithSubRoutes;
+exports.RouteWithSubRoutesRender = RouteWithSubRoutes; // For tests
+
+exports.default = (0, _connect.connect)(function (_ref) {
+    var gtm = _ref.gtm;
+    return {
+        pushDataLayer: gtm.pushDataLayer
+    };
+})(RouteWithSubRoutes);
 
 /***/ }),
 
@@ -15026,22 +15032,19 @@ var _imgThemeLight2 = _interopRequireDefault(_imgThemeLight);
 
 var _connect = __webpack_require__(/*! ../../../Stores/connect */ "./src/javascript/app/Stores/connect.js");
 
-var _gtm = __webpack_require__(/*! ../../../Utils/gtm */ "./src/javascript/app/Utils/gtm.js");
-
-var _gtm2 = _interopRequireDefault(_gtm);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ThemeSelectSettings = function ThemeSelectSettings(_ref) {
     var is_dark_mode = _ref.is_dark_mode,
         toggleDarkMode = _ref.toggleDarkMode,
-        updateBarrierColor = _ref.updateBarrierColor;
+        updateBarrierColor = _ref.updateBarrierColor,
+        pushDataLayer = _ref.pushDataLayer;
 
     var darkOnClick = function darkOnClick() {
         if (!is_dark_mode) {
             var new_dark_mode = toggleDarkMode();
             updateBarrierColor(new_dark_mode);
-            _gtm2.default.pushDataLayer({ event: 'switch theme' });
+            pushDataLayer({ event: 'switch theme' });
         }
     };
 
@@ -15049,7 +15052,7 @@ var ThemeSelectSettings = function ThemeSelectSettings(_ref) {
         if (is_dark_mode) {
             var new_dark_mode = toggleDarkMode();
             updateBarrierColor(new_dark_mode);
-            _gtm2.default.pushDataLayer({ event: 'switch theme' });
+            pushDataLayer({ event: 'switch theme' });
         }
     };
     return _react2.default.createElement(
@@ -15109,11 +15112,13 @@ var ThemeSelectSettings = function ThemeSelectSettings(_ref) {
 
 exports.default = (0, _connect.connect)(function (_ref2) {
     var ui = _ref2.ui,
-        modules = _ref2.modules;
+        modules = _ref2.modules,
+        gtm = _ref2.gtm;
     return {
         is_dark_mode: ui.is_dark_mode_on,
         toggleDarkMode: ui.toggleDarkMode,
-        updateBarrierColor: modules.smart_chart.updateBarrierColor
+        updateBarrierColor: modules.smart_chart.updateBarrierColor,
+        pushDataLayer: gtm.pushDataLayer
     };
 })(ThemeSelectSettings);
 
@@ -15296,19 +15301,18 @@ var _iconWip = __webpack_require__(/*! ../../../Assets/Common/icon-wip.jsx */ ".
 
 var _connect = __webpack_require__(/*! ../../../Stores/connect */ "./src/javascript/app/Stores/connect.js");
 
-var _gtm = __webpack_require__(/*! ../../../Utils/gtm */ "./src/javascript/app/Utils/gtm.js");
-
-var _gtm2 = _interopRequireDefault(_gtm);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var onClick = function onClick() {
     window.location.href = window.open((0, _url.urlFor)('trading', undefined, undefined, true));
 };
 
-var Wip = function Wip(ui) {
+var Wip = function Wip(_ref) {
+    var is_dark_mode = _ref.is_dark_mode,
+        pushDataLayer = _ref.pushDataLayer;
+
     _socket_base2.default.wait('website_status').then(function () {
-        _gtm2.default.pushDataLayer({ event: 'page_load' });
+        pushDataLayer({ event: 'page_load' });
     });
 
     return _react2.default.createElement(
@@ -15317,7 +15321,7 @@ var Wip = function Wip(ui) {
         _react2.default.createElement(
             'div',
             { className: 'work-in-progress__content' },
-            _react2.default.createElement(_iconWip.IconWip, { theme: ui.is_dark_mode ? 'dark' : 'light' }),
+            _react2.default.createElement(_iconWip.IconWip, { theme: is_dark_mode ? 'dark' : 'light' }),
             _react2.default.createElement(
                 'div',
                 { className: 'work-in-progress__header' },
@@ -15338,10 +15342,12 @@ var Wip = function Wip(ui) {
     );
 };
 
-exports.default = (0, _connect.connect)(function (_ref) {
-    var ui = _ref.ui;
+exports.default = (0, _connect.connect)(function (_ref2) {
+    var ui = _ref2.ui,
+        gtm = _ref2.gtm;
     return {
-        is_dark_mode: ui.is_dark_mode_on
+        is_dark_mode: ui.is_dark_mode_on,
+        pushDataLayer: gtm.pushDataLayer
     };
 })(Wip);
 
@@ -27925,10 +27931,6 @@ var _wsMethods = __webpack_require__(/*! ./ws-methods */ "./src/javascript/app/S
 
 var _wsMethods2 = _interopRequireDefault(_wsMethods);
 
-var _gtm = __webpack_require__(/*! ../Utils/gtm */ "./src/javascript/app/Utils/gtm.js");
-
-var _gtm2 = _interopRequireDefault(_gtm);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var requestLogout = exports.requestLogout = function requestLogout() {
@@ -27937,7 +27939,6 @@ var requestLogout = exports.requestLogout = function requestLogout() {
 
 var doLogout = function doLogout(response) {
     if (response.logout !== 1) return;
-    _gtm2.default.pushDataLayer({ event: 'log_out' });
     (0, _storage.removeCookies)('affiliate_token', 'affiliate_tracking');
     _client_base2.default.clearAllAccounts();
     _client_base2.default.set('loginid', '');
@@ -28078,6 +28079,10 @@ var _mobx = __webpack_require__(/*! mobx */ "./node_modules/mobx/lib/mobx.module
 
 var _currency_base = __webpack_require__(/*! ../../_common/base/currency_base */ "./src/javascript/_common/base/currency_base.js");
 
+var _gtm = __webpack_require__(/*! ../../_common/base/gtm */ "./src/javascript/_common/base/gtm.js");
+
+var _gtm2 = _interopRequireDefault(_gtm);
+
 var _login = __webpack_require__(/*! ../../_common/base/login */ "./src/javascript/_common/base/login.js");
 
 var _login2 = _interopRequireDefault(_login);
@@ -28099,10 +28104,6 @@ var _logout = __webpack_require__(/*! ./logout */ "./src/javascript/app/Services
 var _wsMethods = __webpack_require__(/*! ./ws-methods */ "./src/javascript/app/Services/ws-methods.js");
 
 var _wsMethods2 = _interopRequireDefault(_wsMethods);
-
-var _gtm = __webpack_require__(/*! ../Utils/gtm */ "./src/javascript/app/Utils/gtm.js");
-
-var _gtm2 = _interopRequireDefault(_gtm);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34042,10 +34043,6 @@ var _currency_base = __webpack_require__(/*! ../../../../_common/base/currency_b
 
 var _Services = __webpack_require__(/*! ../../../Services */ "./src/javascript/app/Services/index.js");
 
-var _gtm = __webpack_require__(/*! ../../../Utils/gtm */ "./src/javascript/app/Utils/gtm.js");
-
-var _gtm2 = _interopRequireDefault(_gtm);
-
 var _purchase = __webpack_require__(/*! ./Actions/purchase */ "./src/javascript/app/Stores/Modules/Trading/Actions/purchase.js");
 
 var _symbol = __webpack_require__(/*! ./Actions/symbol */ "./src/javascript/app/Stores/Modules/Trading/Actions/symbol.js");
@@ -34496,7 +34493,7 @@ var TradeStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 =
                             _this5.root_store.modules.contract.onMount(contract_id);
                             _this5.root_store.ui.openPositionsDrawer();
                         }
-                        _gtm2.default.pushPurchaseData(contract_data, _this5.root_store);
+                        _this5.root_store.gtm.pushPurchaseData(contract_data);
                     } else if (response.error) {
                         _this5.root_store.common.services_error = _extends({
                             type: response.msg_type
@@ -35662,10 +35659,6 @@ var _Services = __webpack_require__(/*! ../Services */ "./src/javascript/app/Ser
 
 var _client_base = __webpack_require__(/*! ../../_common/base/client_base */ "./src/javascript/_common/base/client_base.js");
 
-var _gtm = __webpack_require__(/*! ../../_common/base/gtm */ "./src/javascript/_common/base/gtm.js");
-
-var _gtm2 = _interopRequireDefault(_gtm);
-
 var _socket_base = __webpack_require__(/*! ../../_common/base/socket_base */ "./src/javascript/_common/base/socket_base.js");
 
 var _socket_base2 = _interopRequireDefault(_socket_base);
@@ -36045,7 +36038,7 @@ var ClientStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 
                             case 10:
                                 sessionStorage.setItem('active_tab', '1');
                                 // set local storage
-                                _gtm2.default.setLoginFlag();
+                                this.root_store.gtm.setLoginFlag();
                                 this.resetLocalStorageValues(this.switched);
                                 SocketCache.clear();
                                 _context2.next = 16;
@@ -36105,6 +36098,7 @@ var ClientStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 
     }, {
         key: 'cleanUp',
         value: function cleanUp() {
+            this.root_store.gtm.pushDataLayer({ event: 'log_out' });
             this.loginid = null;
             this.upgrade_info = undefined;
             this.accounts = [];
@@ -36626,7 +36620,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _dec, _dec2, _desc, _value, _class, _descriptor;
+var _dec, _dec2, _dec3, _dec4, _desc, _value, _class, _descriptor;
 
 var _mobx = __webpack_require__(/*! mobx */ "./node_modules/mobx/lib/mobx.module.js");
 
@@ -36693,7 +36687,7 @@ function _initializerWarningHelper(descriptor, context) {
     throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
 }
 
-var GTMStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, (_class = function (_BaseStore) {
+var GTMStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = _mobx.action.bound, _dec4 = _mobx.action.bound, (_class = function (_BaseStore) {
     _inherits(GTMStore, _BaseStore);
 
     function GTMStore(root_store) {
@@ -36748,6 +36742,48 @@ var GTMStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, (_class =
             }
         }
     }, {
+        key: 'pushPurchaseData',
+        value: function pushPurchaseData(contract_data) {
+            var data = {
+                event: 'buy_contract',
+                bom_ui: 'new',
+                contract: {
+                    amount: contract_data.amount,
+                    barrier1: contract_data.barrier,
+                    barrier2: contract_data.barrier2,
+                    basis: contract_data.basis,
+                    buy_price: contract_data.buy_price,
+                    contract_type: contract_data.contract_type,
+                    currency: contract_data.currency,
+                    date_expiry: contract_data.date_expiry,
+                    date_start: contract_data.date_start,
+                    duration: contract_data.duration,
+                    duration_unit: contract_data.duration_unit,
+                    payout: contract_data.payout,
+                    symbol: contract_data.symbol
+                },
+                settings: {
+                    theme: this.root_store.ui.is_dark_mode_on ? 'dark' : 'light',
+                    positions_drawer: this.root_store.ui.is_positions_drawer_on ? 'open' : 'closed',
+                    // purchase_confirm: this.root_store.ui.is_purchase_confirm_on ? 'enabled' : 'disabled',
+                    chart: {
+                        toolbar_position: this.root_store.ui.is_chart_layout_default ? 'bottom' : 'left',
+                        chart_asset_info: this.root_store.ui.is_chart_asset_info_visible ? 'visible' : 'hidden',
+                        chart_type: this.root_store.modules.smart_chart.chart_type,
+                        granularity: this.root_store.modules.smart_chart.granularity
+                    }
+                }
+            };
+            this.pushDataLayer(data);
+        }
+    }, {
+        key: 'setLoginFlag',
+        value: function setLoginFlag(event_name) {
+            if (this.is_gtm_applicable) {
+                localStorage.setItem('GTM_login', event_name);
+            }
+        }
+    }, {
         key: 'visitorId',
         get: function get() {
             return this.root_store.client.loginid;
@@ -36785,7 +36821,7 @@ var GTMStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, (_class =
         return (/^(16303|16929)$/.test((0, _config.getAppId)())
         );
     }
-}), _applyDecoratedDescriptor(_class.prototype, 'visitorId', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'visitorId'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'currency', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'currency'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'common_variables', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'common_variables'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'accountSwitcherListener', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'accountSwitcherListener'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'pushDataLayer', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'pushDataLayer'), _class.prototype)), _class));
+}), _applyDecoratedDescriptor(_class.prototype, 'visitorId', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'visitorId'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'currency', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'currency'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'common_variables', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'common_variables'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'accountSwitcherListener', [_dec], Object.getOwnPropertyDescriptor(_class.prototype, 'accountSwitcherListener'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'pushDataLayer', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'pushDataLayer'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'pushPurchaseData', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'pushPurchaseData'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'setLoginFlag', [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, 'setLoginFlag'), _class.prototype)), _class));
 exports.default = GTMStore;
 
 /***/ }),
@@ -38318,72 +38354,6 @@ var Validator = function () {
 }();
 
 exports.default = Validator;
-
-/***/ }),
-
-/***/ "./src/javascript/app/Utils/gtm.js":
-/*!*****************************************!*\
-  !*** ./src/javascript/app/Utils/gtm.js ***!
-  \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _gtm = __webpack_require__(/*! ../../_common/base/gtm */ "./src/javascript/_common/base/gtm.js");
-
-var _gtm2 = _interopRequireDefault(_gtm);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var GTM = function () {
-    var pushPurchaseData = function pushPurchaseData(contract_data, root_store) {
-        var data = {
-            event: 'buy_contract',
-            bom_ui: 'new',
-            contract: {
-                amount: contract_data.amount,
-                barrier1: contract_data.barrier,
-                barrier2: contract_data.barrier2,
-                basis: contract_data.basis,
-                buy_price: contract_data.buy_price,
-                contract_type: contract_data.contract_type,
-                currency: contract_data.currency,
-                date_expiry: contract_data.date_expiry,
-                date_start: contract_data.date_start,
-                duration: contract_data.duration,
-                duration_unit: contract_data.duration_unit,
-                payout: contract_data.payout,
-                symbol: contract_data.symbol
-            },
-            settings: {
-                theme: root_store.ui.is_dark_mode_on ? 'dark' : 'light',
-                positions_drawer: root_store.ui.is_positions_drawer_on ? 'open' : 'closed',
-                // purchase_confirm: root_store.ui.is_purchase_confirm_on ? 'enabled' : 'disabled',
-                chart: {
-                    toolbar_position: root_store.ui.is_chart_layout_default ? 'bottom' : 'left',
-                    chart_asset_info: root_store.ui.is_chart_asset_info_visible ? 'visible' : 'hidden',
-                    chart_type: root_store.modules.smart_chart.chart_type,
-                    granularity: root_store.modules.smart_chart.granularity
-                }
-            }
-        };
-        _gtm2.default.pushDataLayer(data);
-    };
-
-    return _extends({}, _gtm2.default, {
-        pushPurchaseData: pushPurchaseData
-    });
-}();
-
-exports.default = GTM;
 
 /***/ }),
 
