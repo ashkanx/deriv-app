@@ -30,9 +30,19 @@ var _reactRouterDom = __webpack_require__(/*! react-router-dom */ "./node_module
 
 var _localize = __webpack_require__(/*! ../../../../_common/localize */ "./src/javascript/_common/localize.js");
 
+var _url = __webpack_require__(/*! ../../../../_common/url */ "./src/javascript/_common/url.js");
+
 var _DataTable = __webpack_require__(/*! ../../../App/Components/Elements/DataTable */ "./src/javascript/app/App/Components/Elements/DataTable/index.js");
 
 var _DataTable2 = _interopRequireDefault(_DataTable);
+
+var _localize2 = __webpack_require__(/*! ../../../App/Components/Elements/localize.jsx */ "./src/javascript/app/App/Components/Elements/localize.jsx");
+
+var _localize3 = _interopRequireDefault(_localize2);
+
+var _appConfig = __webpack_require__(/*! ../../../App/Constants/app-config */ "./src/javascript/app/App/Constants/app-config.js");
+
+var _helpers = __webpack_require__(/*! ../../../App/Components/Routes/helpers */ "./src/javascript/app/App/Components/Routes/helpers.js");
 
 var _emptyTradeHistoryMessage = __webpack_require__(/*! ../Components/empty-trade-history-message.jsx */ "./src/javascript/app/Modules/Reports/Components/empty-trade-history-message.jsx");
 
@@ -55,16 +65,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-// import { getContractPath }                 from 'App/Components/Routes/helpers';
-
 
 var OpenPositions = function (_React$Component) {
     _inherits(OpenPositions, _React$Component);
 
     function OpenPositions() {
+        var _ref;
+
+        var _temp, _this, _ret;
+
         _classCallCheck(this, OpenPositions);
 
-        return _possibleConstructorReturn(this, (OpenPositions.__proto__ || Object.getPrototypeOf(OpenPositions)).apply(this, arguments));
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+        }
+
+        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = OpenPositions.__proto__ || Object.getPrototypeOf(OpenPositions)).call.apply(_ref, [this].concat(args))), _this), _this.getRowAction = function (row_obj) {
+            return row_obj.is_unsupported ? {
+                component: _react2.default.createElement(_localize3.default, {
+                    str: 'This trade type is currently not supported on [_1]. Please go to [_2]Binary.com[_3] for details.',
+                    replacers: {
+                        '1': _appConfig.website_name,
+                        '2_3': _react2.default.createElement('a', { className: 'link link--orange', rel: 'noopener noreferrer', target: '_blank', href: (0, _url.urlFor)('user/portfoliows', undefined, undefined, true) })
+                    }
+                })
+            } : (0, _helpers.getContractPath)(row_obj.id);
+        }, _temp), _possibleConstructorReturn(_this, _ret);
     }
 
     _createClass(OpenPositions, [{
@@ -117,8 +143,8 @@ var OpenPositions = function (_React$Component) {
                         className: 'open-positions',
                         columns: (0, _dataTableConstants.getOpenPositionsColumnsTemplate)(currency),
                         footer: totals,
-                        data_source: active_positions
-                        // getRowAction={(row_obj) => getContractPath(row_obj.id)}
+                        data_source: active_positions,
+                        getRowAction: this.getRowAction
                     },
                     _react2.default.createElement(_placeholderComponent2.default, {
                         is_loading: is_loading
@@ -146,9 +172,9 @@ OpenPositions.propTypes = {
     totals: _propTypes2.default.object
 };
 
-exports.default = (0, _connect.connect)(function (_ref) {
-    var modules = _ref.modules,
-        client = _ref.client;
+exports.default = (0, _connect.connect)(function (_ref2) {
+    var modules = _ref2.modules,
+        client = _ref2.client;
     return {
         currency: client.currency,
         active_positions: modules.portfolio.active_positions,

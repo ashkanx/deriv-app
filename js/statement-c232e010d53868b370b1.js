@@ -30,11 +30,21 @@ var _reactRouterDom = __webpack_require__(/*! react-router-dom */ "./node_module
 
 var _localize = __webpack_require__(/*! ../../../../_common/localize */ "./src/javascript/_common/localize.js");
 
+var _url = __webpack_require__(/*! ../../../../_common/url */ "./src/javascript/_common/url.js");
+
 var _DataTable = __webpack_require__(/*! ../../../App/Components/Elements/DataTable */ "./src/javascript/app/App/Components/Elements/DataTable/index.js");
 
 var _DataTable2 = _interopRequireDefault(_DataTable);
 
+var _localize2 = __webpack_require__(/*! ../../../App/Components/Elements/localize.jsx */ "./src/javascript/app/App/Components/Elements/localize.jsx");
+
+var _localize3 = _interopRequireDefault(_localize2);
+
 var _helpers = __webpack_require__(/*! ../../../App/Components/Routes/helpers */ "./src/javascript/app/App/Components/Routes/helpers.js");
+
+var _appConfig = __webpack_require__(/*! ../../../App/Constants/app-config */ "./src/javascript/app/App/Constants/app-config.js");
+
+var _Constants = __webpack_require__(/*! ../../../Constants */ "./src/javascript/app/Constants/index.js");
 
 var _connect = __webpack_require__(/*! ../../../Stores/connect */ "./src/javascript/app/Stores/connect.js");
 
@@ -49,6 +59,8 @@ var _reportsMeta = __webpack_require__(/*! ../Components/reports-meta.jsx */ "./
 var _emptyTradeHistoryMessage = __webpack_require__(/*! ../Components/empty-trade-history-message.jsx */ "./src/javascript/app/Modules/Reports/Components/empty-trade-history-message.jsx");
 
 var _emptyTradeHistoryMessage2 = _interopRequireDefault(_emptyTradeHistoryMessage);
+
+var _marketUnderyling = __webpack_require__(/*! ../Helpers/market-underyling */ "./src/javascript/app/Modules/Reports/Helpers/market-underyling.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -76,7 +88,15 @@ var Statement = function (_React$Component) {
             var action = void 0;
 
             if (row_obj.id && ['buy', 'sell'].includes(row_obj.action_type)) {
-                action = (0, _helpers.getContractPath)(row_obj.id);
+                action = (0, _Constants.getUnsupportedContracts)()[(0, _marketUnderyling.getMarketInformation)(row_obj).category.toUpperCase()] ? {
+                    component: _react2.default.createElement(_localize3.default, {
+                        str: 'This trade type is currently not supported on [_1]. Please go to [_2]Binary.com[_3] for details.',
+                        replacers: {
+                            '1': _appConfig.website_name,
+                            '2_3': _react2.default.createElement('a', { className: 'link link--orange', rel: 'noopener noreferrer', target: '_blank', href: (0, _url.urlFor)('user/statementws', undefined, undefined, true) })
+                        }
+                    })
+                } : (0, _helpers.getContractPath)(row_obj.id);
             } else if (['deposit', 'withdrawal'].includes(row_obj.action_type)) {
                 action = {
                     message: row_obj.desc
@@ -120,11 +140,6 @@ var Statement = function (_React$Component) {
             );
 
             var columns = (0, _dataTableConstants.getStatementTableColumnsTemplate)(currency);
-            var hasRowAction = function hasRowAction(row) {
-                return data.filter(function (el) {
-                    return el.id === row.id;
-                }).length > 1 || ['withdrawal', 'deposit'].includes(row.action_type);
-            };
 
             return _react2.default.createElement(
                 _react2.default.Fragment,
@@ -149,7 +164,7 @@ var Statement = function (_React$Component) {
                         columns: columns,
                         onScroll: handleScroll,
                         getRowAction: function getRowAction(row) {
-                            return hasRowAction(row) ? _this2.getRowAction(row) : null;
+                            return _this2.getRowAction(row);
                         },
                         is_empty: is_empty
                     },

@@ -327,7 +327,7 @@ var TableRowInfo = function (_React$Component) {
                 this.state.showDetails ? _react2.default.createElement(
                     'div',
                     null,
-                    _react2.default.createElement(
+                    this.props.replace.component ? this.props.replace.component : _react2.default.createElement(
                         'p',
                         null,
                         this.props.replace.message
