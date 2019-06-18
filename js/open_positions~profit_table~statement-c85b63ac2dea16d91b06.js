@@ -127,8 +127,6 @@ var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _helpers = __webpack_require__(/*! ../../Components/Elements/PositionsDrawer/helpers */ "./src/javascript/app/App/Components/Elements/PositionsDrawer/helpers/index.js");
-
 var _positionsProgressSlider = __webpack_require__(/*! ../../Components/Elements/PositionsDrawer/ProgressSlider/positions-progress-slider.jsx */ "./src/javascript/app/App/Components/Elements/PositionsDrawer/ProgressSlider/positions-progress-slider.jsx");
 
 var _positionsProgressSlider2 = _interopRequireDefault(_positionsProgressSlider);
@@ -140,8 +138,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var ProgressSliderStream = function ProgressSliderStream(_ref) {
     var id = _ref.id,
         is_loading = _ref.is_loading,
-        getPositionById = _ref.getPositionById,
-        server_time = _ref.server_time;
+        getPositionById = _ref.getPositionById;
 
     var position = getPositionById(id);
     if (!position) {
@@ -150,14 +147,13 @@ var ProgressSliderStream = function ProgressSliderStream(_ref) {
 
     var contract_info = position.contract_info;
 
-    var percentage = (0, _helpers.getTimePercentage)(server_time, contract_info.purchase_time, contract_info.date_expiry);
 
     return _react2.default.createElement(_positionsProgressSlider2.default, {
         is_loading: is_loading,
-        remaining_time: contract_info.date_expiry,
-        percentage: percentage,
+        expiry_time: contract_info.date_expiry,
         has_result: false,
         current_tick: position.current_tick,
+        start_time: contract_info.purchase_time,
         ticks_count: contract_info.ticks_count
     });
 };
@@ -170,11 +166,9 @@ ProgressSliderStream.propTypes = {
 };
 
 exports.default = (0, _connect.connect)(function (_ref2) {
-    var modules = _ref2.modules,
-        common = _ref2.common;
+    var modules = _ref2.modules;
     return {
         is_loading: modules.portfolio.is_loading,
-        server_time: common.server_time,
         getPositionById: modules.portfolio.getPositionById
     };
 })(ProgressSliderStream);

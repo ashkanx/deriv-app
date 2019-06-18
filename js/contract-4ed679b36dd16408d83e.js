@@ -1008,158 +1008,6 @@ exports.default = function (_ref) {
 
 /***/ }),
 
-/***/ "./src/javascript/app/App/Components/Animations/fade-wrapper.jsx":
-/*!***********************************************************************!*\
-  !*** ./src/javascript/app/App/Components/Animations/fade-wrapper.jsx ***!
-  \***********************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.FadeWrapper = undefined;
-
-var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactPose = __webpack_require__(/*! react-pose */ "./node_modules/react-pose/dist/react-pose.es.js");
-
-var _reactPose2 = _interopRequireDefault(_reactPose);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var FadeInFromTopDiv = _reactPose2.default.div({
-    enter: {
-        y: 0,
-        opacity: 1,
-        delay: 300,
-        transition: {
-            default: { duration: 250 }
-        }
-    },
-    exit: {
-        y: -50,
-        opacity: 0,
-        transition: { duration: 250 }
-    }
-});
-
-var FadeInFromBottomDiv = _reactPose2.default.div({
-    enter: {
-        y: 0,
-        opacity: 1,
-        delay: 300,
-        transition: {
-            default: { duration: 250 }
-        }
-    },
-    exit: {
-        y: 50,
-        opacity: 0,
-        transition: { duration: 250 }
-    }
-});
-
-var FadeInOnlyDiv = _reactPose2.default.div({
-    enter: {
-
-        opacity: 1,
-        transition: { duration: 300 }
-    },
-    exit: {
-        opacity: 0,
-        transition: { duration: 300 }
-    }
-});
-
-var FadeWrapper = function FadeWrapper(_ref) {
-    var children = _ref.children,
-        className = _ref.className,
-        keyname = _ref.keyname,
-        is_visible = _ref.is_visible,
-        type = _ref.type;
-
-    if (type === 'top') {
-        return _react2.default.createElement(
-            _reactPose.PoseGroup,
-            null,
-            is_visible && _react2.default.createElement(
-                FadeInFromTopDiv,
-                { className: className, key: keyname },
-                children
-            )
-        );
-    }
-    if (type === 'bottom') {
-        return _react2.default.createElement(
-            _reactPose.PoseGroup,
-            null,
-            is_visible && _react2.default.createElement(
-                FadeInFromBottomDiv,
-                { className: className, key: keyname },
-                children
-            )
-        );
-    }
-    return _react2.default.createElement(
-        _reactPose.PoseGroup,
-        null,
-        is_visible && _react2.default.createElement(
-            FadeInOnlyDiv,
-            { className: className, key: keyname },
-            children
-        )
-    );
-};
-
-FadeWrapper.propTypes = {
-    children: _propTypes2.default.node,
-    is_visible: _propTypes2.default.bool,
-    keyname: _propTypes2.default.string,
-    type: _propTypes2.default.string
-};
-
-exports.FadeWrapper = FadeWrapper;
-
-/***/ }),
-
-/***/ "./src/javascript/app/App/Components/Animations/index.js":
-/*!***************************************************************!*\
-  !*** ./src/javascript/app/App/Components/Animations/index.js ***!
-  \***************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _fadeWrapper = __webpack_require__(/*! ./fade-wrapper.jsx */ "./src/javascript/app/App/Components/Animations/fade-wrapper.jsx");
-
-Object.keys(_fadeWrapper).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _fadeWrapper[key];
-    }
-  });
-});
-
-/***/ }),
-
 /***/ "./src/javascript/app/App/Components/Elements/ContractAudit/Helpers/icons.js":
 /*!***********************************************************************************!*\
   !*** ./src/javascript/app/App/Components/Elements/ContractAudit/Helpers/icons.js ***!
@@ -1833,8 +1681,6 @@ var _ProgressSlider = __webpack_require__(/*! ../PositionsDrawer/ProgressSlider 
 
 var _ProgressSlider2 = _interopRequireDefault(_ProgressSlider);
 
-var _helpers = __webpack_require__(/*! ../PositionsDrawer/helpers */ "./src/javascript/app/App/Components/Elements/PositionsDrawer/helpers/index.js");
-
 var _profitLossCardContent = __webpack_require__(/*! ../../../../Modules/Reports/Components/profit-loss-card-content.jsx */ "./src/javascript/app/Modules/Reports/Components/profit-loss-card-content.jsx");
 
 var _profitLossCardContent2 = _interopRequireDefault(_profitLossCardContent);
@@ -1923,7 +1769,6 @@ var ContractDrawer = function (_Component) {
                 onClickSell = _props.onClickSell;
 
             var exit_spot = (0, _logic.isUserSold)(contract_info) ? '-' : exit_tick;
-            var percentage = (0, _helpers.getTimePercentage)(this.props.server_time, contract_info.purchase_time, contract_info.date_expiry);
             var getTick = function getTick() {
                 if (!contract_info.tick_count) return null;
                 var current_tick = (0, _details.getCurrentTick)(contract_info);
@@ -1965,13 +1810,12 @@ var ContractDrawer = function (_Component) {
                             )
                         )
                     ),
-                    _react2.default.createElement(_ProgressSlider2.default, {
+                    is_sold ? _react2.default.createElement('div', { className: 'progress-slider--completed' }) : _react2.default.createElement(_ProgressSlider2.default, {
                         is_loading: false,
-                        remaining_time: contract_info.date_expiry,
-                        percentage: percentage,
+                        start_time: contract_info.purchase_time,
+                        expiry_time: contract_info.date_expiry,
                         current_tick: getTick(),
-                        ticks_count: contract_info.tick_count,
-                        has_result: !!is_sold
+                        ticks_count: contract_info.tick_count
                     }),
                     _react2.default.createElement(
                         _contractCardBody2.default,
@@ -2073,7 +1917,7 @@ var ContractDrawer = function (_Component) {
         key: 'render',
         value: function render() {
             if (!this.props.contract_info) return null;
-            var body_content = this.getBodyContent();
+            var body_content = this.props.contract_info.status ? this.getBodyContent() : null;
             return _react2.default.createElement(
                 'div',
                 { className: (0, _classnames2.default)('contract-drawer', {}) },
@@ -2108,7 +1952,6 @@ ContractDrawer.propTypes = {
     is_dark_theme: _propTypes2.default.bool,
     is_sell_requested: _propTypes2.default.bool,
     onClickSell: _propTypes2.default.func,
-    server_time: _propTypes2.default.object,
     status: _propTypes2.default.string
 };
 
@@ -2175,8 +2018,6 @@ var _react2 = _interopRequireDefault(_react);
 var _reactRouter = __webpack_require__(/*! react-router */ "./node_modules/react-router/esm/react-router.js");
 
 var _utility = __webpack_require__(/*! ../../../../_common/utility */ "./src/javascript/_common/utility.js");
-
-var _Animations = __webpack_require__(/*! ../../../App/Components/Animations */ "./src/javascript/app/App/Components/Animations/index.js");
 
 var _chartLoader = __webpack_require__(/*! ../../../App/Components/Elements/chart-loader.jsx */ "./src/javascript/app/App/Components/Elements/chart-loader.jsx");
 
@@ -2291,30 +2132,20 @@ var ContractReplay = function (_React$Component) {
                 is_sell_requested = _props.is_sell_requested,
                 is_static_chart = _props.is_static_chart,
                 onClickSell = _props.onClickSell,
-                server_time = _props.server_time,
                 status = _props.status;
 
 
             return _react2.default.createElement(
                 'div',
                 { className: 'trade-container__replay', ref: this.setWrapperRef },
-                _react2.default.createElement(
-                    _Animations.FadeWrapper,
-                    {
-                        className: 'contract-drawer-wrapper',
-                        is_visible: !!contract_info.status,
-                        keyname: 'contract-drawer-wrapper'
-                    },
-                    _react2.default.createElement(_ContractDrawer2.default, {
-                        contract_info: contract_info,
-                        heading: 'Reports',
-                        is_dark_theme: is_dark_theme,
-                        is_sell_requested: is_sell_requested,
-                        onClickSell: onClickSell,
-                        status: status,
-                        server_time: server_time
-                    })
-                ),
+                _react2.default.createElement(_ContractDrawer2.default, {
+                    contract_info: contract_info,
+                    heading: 'Reports',
+                    is_dark_theme: is_dark_theme,
+                    is_sell_requested: is_sell_requested,
+                    onClickSell: onClickSell,
+                    status: status
+                }),
                 _react2.default.createElement(
                     _react2.default.Suspense,
                     { fallback: _react2.default.createElement('div', null) },
@@ -2378,11 +2209,9 @@ ContractReplay.propTypes = {
 };
 
 exports.default = (0, _reactRouter.withRouter)((0, _connect.connect)(function (_ref3) {
-    var common = _ref3.common,
-        modules = _ref3.modules,
+    var modules = _ref3.modules,
         ui = _ref3.ui;
     return {
-        server_time: common.server_time,
         chart_id: modules.smart_chart.replay_id,
         config: modules.contract.replay_config,
         is_sell_requested: modules.contract.is_sell_requested,
