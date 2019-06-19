@@ -31573,10 +31573,10 @@ var getAllowedLanguages = exports.getAllowedLanguages = function getAllowedLangu
     }, {});
 
     // TODO Remove this one line below when design is ready.
-    language_list = {
-        EN: 'English',
-        RU: 'Русский'
-    };
+    // language_list = {
+    //     EN: 'English',
+    //     RU: 'Русский',
+    // };
     return language_list;
 };
 
