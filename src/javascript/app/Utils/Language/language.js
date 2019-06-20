@@ -7,7 +7,7 @@ export const getAllowedLanguages = () => {
         'ACH',
     ];
     // TODO Change language_list to const when design is ready.
-    let language_list = Object.keys(getAll())
+    const language_list = Object.keys(getAll())
         .filter(key => !(exclude_languages.includes(key)))
         .reduce((obj, key) => {
             obj[key] = getAll()[key];
@@ -15,7 +15,10 @@ export const getAllowedLanguages = () => {
         }, {});
 
     // TODO Remove this one line below when design is ready.
-    language_list = { EN: 'English' };
+    // language_list = {
+    //     EN: 'English',
+    //     RU: 'Русский',
+    // };
     return language_list;
 };
 
