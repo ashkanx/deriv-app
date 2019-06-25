@@ -153,7 +153,7 @@ var ProgressSliderStream = function ProgressSliderStream(_ref) {
         expiry_time: contract_info.date_expiry,
         has_result: false,
         current_tick: position.current_tick,
-        start_time: contract_info.purchase_time,
+        start_time: contract_info.date_start,
         ticks_count: contract_info.ticks_count
     });
 };

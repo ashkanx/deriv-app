@@ -33,11 +33,22 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 var ChartMarker = function ChartMarker(_ref) {
-    var marker_config = _ref.marker_config,
+    var is_contract_replay = _ref.is_contract_replay,
+        marker_config = _ref.marker_config,
         marker_content_props = _ref.marker_content_props;
 
     var ContentComponent = marker_config.ContentComponent,
         marker_props = _objectWithoutProperties(marker_config, ['ContentComponent']);
+
+    // Remove CSS transition on chart-marker-line when
+    // viewing expired contract because it appears sluggish over time
+    // -> charts seems to be doing heavy js scripting when rendering static charts
+    // TODO: remove this once smartcharts is more optimized
+
+
+    if (is_contract_replay && marker_props.yPositioner === 'none') {
+        marker_props.className += ' chart-marker-line__no-transition';
+    }
 
     return _react2.default.createElement(
         _smartchartsBeta.Marker,
@@ -300,6 +311,8 @@ var Chart = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
             return _react2.default.createElement(
                 _smartchartsBeta.SmartChart,
                 {
@@ -331,6 +344,7 @@ var Chart = function (_React$Component) {
                 },
                 this.props.markers_array.map(function (marker, idx) {
                     return _react2.default.createElement(_marker2.default, {
+                        is_contract_replay: _this2.props.is_contract_replay,
                         key: idx,
                         marker_config: marker.marker_config,
                         marker_content_props: marker.content_config
@@ -354,6 +368,7 @@ Chart.propTypes = {
     granularity: _propTypes2.default.number,
     InfoBox: _propTypes2.default.node,
     is_contract_mode: _propTypes2.default.bool,
+    is_contract_replay: _propTypes2.default.bool,
     is_mobile: _propTypes2.default.bool,
     is_socket_opened: _propTypes2.default.bool,
     is_static_chart: _propTypes2.default.bool,

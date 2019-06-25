@@ -2103,9 +2103,6 @@ var ContractReplay = function (_React$Component) {
     }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
-            // SmartCharts keeps saving layout for ContractReplay even if layouts prop is set to null
-            // As a result, we have to remove it manually for each SmartChart instance in ContractReplay
-            localStorage.removeItem('layout-contract-replay');
             this.props.hideBlur();
             this.props.onUnmount();
             document.removeEventListener('mousedown', this.handleClickOutside);
@@ -2126,7 +2123,6 @@ var ContractReplay = function (_React$Component) {
             var _props = this.props,
                 config = _props.config,
                 contract_info = _props.contract_info,
-                chart_id = _props.chart_id,
                 is_chart_loading = _props.is_chart_loading,
                 is_dark_theme = _props.is_dark_theme,
                 is_sell_requested = _props.is_sell_requested,
@@ -2170,10 +2166,10 @@ var ContractReplay = function (_React$Component) {
                         _react2.default.createElement(_notificationMessages2.default, null),
                         _react2.default.createElement(_chartLoader2.default, { is_visible: is_chart_loading }),
                         !!contract_info.underlying && !(0, _utility.isEmptyObject)(config) && _react2.default.createElement(SmartChart, _extends({
-                            chart_id: chart_id,
                             chartControlsWidgets: null,
                             Digits: _react2.default.createElement(_digits2.default, null),
                             InfoBox: _react2.default.createElement(_infoBox2.default, null),
+                            is_contract_replay: true,
                             is_static_chart: is_static_chart,
                             should_show_last_digit_stats: false,
                             symbol: contract_info.underlying
@@ -2188,7 +2184,6 @@ var ContractReplay = function (_React$Component) {
 }(_react2.default.Component);
 
 ContractReplay.propTypes = {
-    chart_id: _propTypes2.default.string,
     config: _propTypes2.default.object,
     contract_id: _propTypes2.default.number,
     contract_info: _propTypes2.default.object,
@@ -2212,7 +2207,6 @@ exports.default = (0, _reactRouter.withRouter)((0, _connect.connect)(function (_
     var modules = _ref3.modules,
         ui = _ref3.ui;
     return {
-        chart_id: modules.smart_chart.replay_id,
         config: modules.contract.replay_config,
         is_sell_requested: modules.contract.is_sell_requested,
         is_static_chart: modules.contract.is_replay_static_chart,
