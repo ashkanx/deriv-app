@@ -22414,14 +22414,6 @@ var client_notifications = {
         }),
         type: 'info'
     },
-    document_review: {
-        header: (0, _localize.localize)('Documents in review'),
-        message: _react2.default.createElement(_localize3.default, {
-            str: 'We are reviewing your documents. For more details [_1]contact us[_2].',
-            replacers: { '1_2': _react2.default.createElement('a', { className: 'link link--white', target: '_blank', href: (0, _url.urlFor)('contact', undefined, undefined, true) }) }
-        }),
-        type: 'info'
-    },
     cashier_locked: {
         header: (0, _localize.localize)('Cashier Disabled'),
         message: (0, _localize.localize)('Deposits and withdrawals have been disabled on your account. Please check your email for more details.'),
@@ -22564,7 +22556,6 @@ var checkAccountStatus = function checkAccountStatus(response, client, addNotifi
 
     var is_mf_retail = client.landing_company_shortcode === 'maltainvest' && !professional;
 
-    if (document_under_review) addNotification(client_notifications.document_review);
     if (cashier_locked) addNotification(client_notifications.cashier_locked);
     if (withdrawal_locked) addNotification(client_notifications.withdrawal_locked);
     if (mt5_withdrawal_locked) addNotification(client_notifications.mt5_withdrawal_locked);
@@ -22577,7 +22568,7 @@ var checkAccountStatus = function checkAccountStatus(response, client, addNotifi
     if ((0, _client_base.getRiskAssessment)()) addNotification(client_notifications.risk);
     if ((0, _client_base.shouldCompleteTax)()) addNotification(client_notifications.tax);
 
-    if (prompt_client_to_authenticate && !(document_under_review || document_needs_action)) {
+    if (+prompt_client_to_authenticate && !(document_under_review || document_needs_action)) {
         addNotification(client_notifications.authenticate);
     }
 
@@ -24483,14 +24474,35 @@ var PortfolioStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _de
     initializer: function initializer() {
         var _this3 = this;
 
-        return function () {
-            if (!_this3.root_store.client.is_logged_in) return;
-            _this3.is_loading = true;
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+            return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                while (1) {
+                    switch (_context2.prev = _context2.next) {
+                        case 0:
+                            if (_this3.root_store.client.is_logged_in) {
+                                _context2.next = 2;
+                                break;
+                            }
 
-            _Services.WS.portfolio().then(_this3.portfolioHandler);
-            _Services.WS.subscribeProposalOpenContract(null, _this3.proposalOpenContractHandler, false);
-            _Services.WS.subscribeTransaction(_this3.transactionHandler, false);
-        };
+                            return _context2.abrupt('return');
+
+                        case 2:
+                            _this3.is_loading = true;
+                            _context2.next = 5;
+                            return _this3.waitFor('authorize');
+
+                        case 5:
+                            _Services.WS.portfolio().then(_this3.portfolioHandler);
+                            _Services.WS.subscribeProposalOpenContract(null, _this3.proposalOpenContractHandler, false);
+                            _Services.WS.subscribeTransaction(_this3.transactionHandler, false);
+
+                        case 8:
+                        case 'end':
+                            return _context2.stop();
+                    }
+                }
+            }, _callee2, _this3);
+        }));
     }
 }), _applyDecoratedDescriptor(_class.prototype, 'clearTable', [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, 'clearTable'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'portfolioHandler', [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, 'portfolioHandler'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'transactionHandler', [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, 'transactionHandler'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'proposalOpenContractHandler', [_dec5], Object.getOwnPropertyDescriptor(_class.prototype, 'proposalOpenContractHandler'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'onClickSell', [_dec6], Object.getOwnPropertyDescriptor(_class.prototype, 'onClickSell'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'handleSell', [_dec7], Object.getOwnPropertyDescriptor(_class.prototype, 'handleSell'), _class.prototype), _descriptor5 = _applyDecoratedDescriptor(_class.prototype, 'populateResultDetails', [_dec8], {
     enumerable: true,
@@ -24522,6 +24534,13 @@ var PortfolioStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _de
             if ((0, _logic.isUserSold)(contract_response)) _this4.positions[i].exit_spot = '-';
 
             _this4.positions[i].is_loading = false;
+
+            if ((0, _logic.isEnded)(contract_response)) {
+                // also forget for buy
+                [_this4.populateResultDetails, _this4.proposalOpenContractHandler].forEach(function (cb) {
+                    _Services.WS.forget('proposal_open_contract', cb, { contract_id: contract_response.contract_id });
+                });
+            }
         };
     }
 }), _applyDecoratedDescriptor(_class.prototype, 'pushNewPosition', [_dec9], Object.getOwnPropertyDescriptor(_class.prototype, 'pushNewPosition'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'removePositionById', [_dec10], Object.getOwnPropertyDescriptor(_class.prototype, 'removePositionById'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'accountSwitcherListener', [_dec11], Object.getOwnPropertyDescriptor(_class.prototype, 'accountSwitcherListener'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'onMount', [_dec12], Object.getOwnPropertyDescriptor(_class.prototype, 'onMount'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'onUnmount', [_dec13], Object.getOwnPropertyDescriptor(_class.prototype, 'onUnmount'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'totals', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'totals'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'active_positions_totals', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'active_positions_totals'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'active_positions', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'active_positions'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'all_positions', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'all_positions'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'is_active_empty', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'is_active_empty'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'is_empty', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'is_empty'), _class.prototype)), _class));
@@ -24766,9 +24785,13 @@ var ProfitTableStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _
                             case 0:
                                 this.onSwitchAccount(this.accountSwitcherListener);
                                 _context2.next = 3;
-                                return this.fetchNextBatch();
+                                return this.waitFor('authorize');
 
                             case 3:
+                                _context2.next = 5;
+                                return this.fetchNextBatch();
+
+                            case 5:
                             case 'end':
                                 return _context2.stop();
                         }
@@ -26175,9 +26198,13 @@ var StatementStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _de
                             case 0:
                                 this.onSwitchAccount(this.accountSwitcherListener);
                                 _context2.next = 3;
-                                return this.fetchNextBatch();
+                                return this.waitFor('authorize');
 
                             case 3:
+                                _context2.next = 5;
+                                return this.fetchNextBatch();
+
+                            case 5:
                             case 'end':
                                 return _context2.stop();
                         }
@@ -29071,20 +29098,40 @@ var TradeStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 =
     initializer: function initializer() {
         var _this11 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
-            return regeneratorRuntime.wrap(function _callee8$(_context8) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
+            return regeneratorRuntime.wrap(function _callee9$(_context9) {
                 while (1) {
-                    switch (_context8.prev = _context8.next) {
+                    switch (_context9.prev = _context9.next) {
                         case 0:
-                            _context8.next = 2;
-                            return _socket_base2.default.wait('website_status');
+                            _context9.next = 2;
+                            return _socket_base2.default.wait('authorize', 'website_status');
 
                         case 2:
+                            (0, _mobx.action)(_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
+                                return regeneratorRuntime.wrap(function _callee8$(_context8) {
+                                    while (1) {
+                                        switch (_context8.prev = _context8.next) {
+                                            case 0:
+                                                _context8.next = 2;
+                                                return _Services.WS.activeSymbols().active_symbols;
+
+                                            case 2:
+                                                _this11.active_symbols = _context8.sent;
+
+                                            case 3:
+                                            case 'end':
+                                                return _context8.stop();
+                                        }
+                                    }
+                                }, _callee8, _this11);
+                            })));
+
+                        case 3:
                         case 'end':
-                            return _context8.stop();
+                            return _context9.stop();
                     }
                 }
-            }, _callee8, _this11);
+            }, _callee9, _this11);
         }));
     }
 }), _descriptor39 = _applyDecoratedDescriptor(_class.prototype, 'refresh', [_dec2], {
@@ -29192,6 +29239,10 @@ var _dec, _dec2, _dec3, _desc, _value, _class, _descriptor, _descriptor2, _class
 
 var _mobx = __webpack_require__(/*! mobx */ "./node_modules/mobx/lib/mobx.module.js");
 
+var _socket_base = __webpack_require__(/*! ../../_common/base/socket_base */ "./src/javascript/_common/base/socket_base.js");
+
+var _socket_base2 = _interopRequireDefault(_socket_base);
+
 var _utility = __webpack_require__(/*! ../../_common/utility */ "./src/javascript/_common/utility.js");
 
 var _Validator = __webpack_require__(/*! ../Utils/Validator */ "./src/javascript/app/Utils/Validator/index.js");
@@ -29202,9 +29253,9 @@ var _config = __webpack_require__(/*! ../../config */ "./src/javascript/config.j
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 function _initDefineProp(target, property, descriptor, context) {
     if (!descriptor) return;
@@ -29269,6 +29320,8 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
      *     @property {String}   store_name - Explicit store name for browser application storage (to bypass minification)
      */
     function BaseStore() {
+        var _this = this;
+
         var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
         _classCallCheck(this, BaseStore);
@@ -29279,6 +29332,30 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
 
         this.switchAccountDisposer = null;
         this.switch_account_listener = null;
+
+        this.waitFor = function () {
+            var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+                var _args = arguments;
+                return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                        switch (_context.prev = _context.next) {
+                            case 0:
+                                _context.next = 2;
+                                return _socket_base2.default.wait.apply(_socket_base2.default, _args);
+
+                            case 2:
+                            case 'end':
+                                return _context.stop();
+                        }
+                    }
+                }, _callee, _this);
+            }));
+
+            return function () {
+                return _ref.apply(this, arguments);
+            };
+        }();
+
         var root_store = options.root_store,
             local_storage_properties = options.local_storage_properties,
             session_storage_properties = options.session_storage_properties,
@@ -29364,15 +29441,15 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
     }, {
         key: 'setupReactionForLocalStorage',
         value: function setupReactionForLocalStorage() {
-            var _this = this;
+            var _this2 = this;
 
             if (this.local_storage_properties.length) {
                 (0, _mobx.reaction)(function () {
-                    return _this.local_storage_properties.map(function (i) {
-                        return _this[i];
+                    return _this2.local_storage_properties.map(function (i) {
+                        return _this2[i];
                     });
                 }, function () {
-                    return _this.saveToStorage(_this.local_storage_properties, BaseStore.STORAGES.LOCAL_STORAGE);
+                    return _this2.saveToStorage(_this2.local_storage_properties, BaseStore.STORAGES.LOCAL_STORAGE);
                 });
             }
         }
@@ -29386,15 +29463,15 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
     }, {
         key: 'setupReactionForSessionStorage',
         value: function setupReactionForSessionStorage() {
-            var _this2 = this;
+            var _this3 = this;
 
             if (this.session_storage_properties.length) {
                 (0, _mobx.reaction)(function () {
-                    return _this2.session_storage_properties.map(function (i) {
-                        return _this2[i];
+                    return _this3.session_storage_properties.map(function (i) {
+                        return _this3[i];
                     });
                 }, function () {
-                    return _this2.saveToStorage(_this2.session_storage_properties, BaseStore.STORAGES.SESSION_STORAGE);
+                    return _this3.saveToStorage(_this3.session_storage_properties, BaseStore.STORAGES.SESSION_STORAGE);
                 });
             }
         }
@@ -29430,7 +29507,7 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
     }, {
         key: 'retrieveFromStorage',
         value: function retrieveFromStorage() {
-            var _this3 = this;
+            var _this4 = this;
 
             var local_storage_snapshot = JSON.parse(localStorage.getItem(this.store_name, {}));
             var session_storage_snapshot = JSON.parse(sessionStorage.getItem(this.store_name, {}));
@@ -29438,7 +29515,7 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
             var snapshot = _extends({}, local_storage_snapshot, session_storage_snapshot);
 
             Object.keys(snapshot).forEach(function (k) {
-                return _this3[k] = snapshot[k];
+                return _this4[k] = snapshot[k];
             });
         }
 
@@ -29453,13 +29530,13 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
     }, {
         key: 'setValidationErrorMessages',
         value: function setValidationErrorMessages(propertyName, messages) {
-            var _this4 = this;
+            var _this5 = this;
 
             var is_different = function is_different() {
-                return !!_this4.validation_errors[propertyName].filter(function (x) {
+                return !!_this5.validation_errors[propertyName].filter(function (x) {
                     return !messages.includes(x);
                 }).concat(messages.filter(function (x) {
-                    return !_this4.validation_errors[propertyName].includes(x);
+                    return !_this5.validation_errors[propertyName].includes(x);
                 })).length;
             };
             if (!this.validation_errors[propertyName] || is_different()) {
@@ -29477,12 +29554,12 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
     }, {
         key: 'setValidationRules',
         value: function setValidationRules() {
-            var _this5 = this;
+            var _this6 = this;
 
             var rules = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
             Object.keys(rules).forEach(function (key) {
-                _this5.addRule(key, rules[key]);
+                _this6.addRule(key, rules[key]);
             });
         }
 
@@ -29497,12 +29574,12 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
     }, {
         key: 'addRule',
         value: function addRule(property, rules) {
-            var _this6 = this;
+            var _this7 = this;
 
             this.validation_rules[property] = rules;
 
             (0, _mobx.intercept)(this, property, function (change) {
-                _this6.validateProperty(property, change.newValue);
+                _this7.validateProperty(property, change.newValue);
                 return change;
             });
         }
@@ -29518,7 +29595,7 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
     }, {
         key: 'validateProperty',
         value: function validateProperty(property, value) {
-            var _this7 = this;
+            var _this8 = this;
 
             var trigger = this.validation_rules[property].trigger;
             var inputs = _defineProperty({}, property, value !== undefined ? value : this[property]);
@@ -29534,7 +29611,7 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
             validator.isPassed();
 
             Object.keys(inputs).forEach(function (key) {
-                _this7.setValidationErrorMessages(key, validator.errors.get(key));
+                _this8.setValidationErrorMessages(key, validator.errors.get(key));
             });
         }
 
@@ -29546,73 +29623,73 @@ var BaseStore = (_dec = _mobx.action.bound, _dec2 = _mobx.action.bound, _dec3 = 
     }, {
         key: 'validateAllProperties',
         value: function validateAllProperties() {
-            var _this8 = this;
+            var _this9 = this;
 
             var validation_rules = Object.keys(this.validation_rules);
             var validation_errors = Object.keys(this.validation_errors);
 
             validation_rules.forEach(function (p) {
-                _this8.validateProperty(p, _this8[p]);
+                _this9.validateProperty(p, _this9[p]);
             });
 
             // Remove keys that are present in error, but not in rules:
             validation_errors.forEach(function (error) {
                 if (!validation_rules.includes(error)) {
-                    delete _this8.validation_errors[error];
+                    delete _this9.validation_errors[error];
                 }
             });
         }
     }, {
         key: 'onSwitchAccount',
         value: function onSwitchAccount(listener) {
-            var _this9 = this;
+            var _this10 = this;
 
             this.switchAccountDisposer = (0, _mobx.when)(function () {
-                return _this9.root_store.client.switch_broadcast;
-            }, _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+                return _this10.root_store.client.switch_broadcast;
+            }, _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
                 var result;
-                return regeneratorRuntime.wrap(function _callee$(_context) {
+                return regeneratorRuntime.wrap(function _callee2$(_context2) {
                     while (1) {
-                        switch (_context.prev = _context.next) {
+                        switch (_context2.prev = _context2.next) {
                             case 0:
-                                _context.prev = 0;
-                                result = _this9.switch_account_listener();
+                                _context2.prev = 0;
+                                result = _this10.switch_account_listener();
 
                                 if (!(result && result.then && typeof result.then === 'function')) {
-                                    _context.next = 6;
+                                    _context2.next = 6;
                                     break;
                                 }
 
                                 result.then(function () {
-                                    _this9.root_store.client.switchEndSignal();
-                                    _this9.onSwitchAccount(_this9.switch_account_listener);
+                                    _this10.root_store.client.switchEndSignal();
+                                    _this10.onSwitchAccount(_this10.switch_account_listener);
                                 });
-                                _context.next = 7;
+                                _context2.next = 7;
                                 break;
 
                             case 6:
                                 throw new Error('Switching account listeners are required to return a promise.');
 
                             case 7:
-                                _context.next = 12;
+                                _context2.next = 12;
                                 break;
 
                             case 9:
-                                _context.prev = 9;
-                                _context.t0 = _context['catch'](0);
+                                _context2.prev = 9;
+                                _context2.t0 = _context2['catch'](0);
 
                                 // there is no listener currently active. so we can just ignore the error raised from treating
                                 // a null object as a function. Although, in development mode, we throw a console error.
                                 if (!(0, _config.isProduction)()) {
-                                    console.error(_context.t0); // eslint-disable-line
+                                    console.error(_context2.t0); // eslint-disable-line
                                 }
 
                             case 12:
                             case 'end':
-                                return _context.stop();
+                                return _context2.stop();
                         }
                     }
-                }, _callee, _this9, [[0, 9]]);
+                }, _callee2, _this10, [[0, 9]]);
             })));
             this.switch_account_listener = listener;
         }
