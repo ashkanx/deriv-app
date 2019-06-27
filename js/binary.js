@@ -32603,8 +32603,6 @@ __webpack_require__(/*! babel-polyfill */ "./node_modules/babel-polyfill/lib/ind
 
 __webpack_require__(/*! promise-polyfill */ "./node_modules/promise-polyfill/promise.js");
 
-var _check_new_release = __webpack_require__(/*! ../_common/check_new_release */ "./src/javascript/_common/check_new_release.js");
-
 var _app = __webpack_require__(/*! ./App/app */ "./src/javascript/app/App/app.js");
 
 var _app2 = _interopRequireDefault(_app);
@@ -32614,8 +32612,6 @@ var _pwa = __webpack_require__(/*! ./Utils/pwa */ "./src/javascript/app/Utils/pw
 var _pwa2 = _interopRequireDefault(_pwa);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-window.check_new_release = _check_new_release.checkNewRelease; // used by GTM to update page after a new release
 
 (0, _pwa2.default)();
 (0, _app2.default)();
